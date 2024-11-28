@@ -66,6 +66,27 @@
   - 清除功能
 - 预期完成时间：3天
 
+Jest测试工具配置：
+1. 安装依赖：
+```bash
+npm install --save-dev jest @vue/test-utils @vue/cli-plugin-unit-jest @babel/core @babel/preset-env babel-jest
+```
+
+2. 配置Jest（jest.config.js）：
+- 支持.vue文件测试
+- 支持ES6语法
+- 配置测试文件匹配规则
+- 设置jsdom测试环境
+
+3. 运行测试命令：
+```bash
+# 运行所有测试
+npm run test:unit
+
+# 监视模式运行测试
+npm run test:watch
+```
+
 #### 4.1.2 集成测试
 - 测试工具：Vue Test Utils
 - 测试范围：

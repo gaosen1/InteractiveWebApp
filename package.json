@@ -8,19 +8,23 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
-    "test:unit": "jest --coverage",
-    "test:watch": "jest --watch"
+    "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch"
   },
   "dependencies": {
     "vue": "^3.4.29"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.5",
+    "@vue/test-utils": "^2.4.0-alpha.2",
+    "@vue/vue3-jest": "^27.0.0",
     "eslint": "^8.57.0",
     "eslint-plugin-vue": "^9.23.0",
+    "jest-environment-jsdom": "^29.7.0",
     "vite": "^5.3.1"
   },
   "jest": {
+    "testEnvironment": "jsdom",
     "collectCoverage": true,
     "collectCoverageFrom": [
       "src/**/*.{js,vue}",
@@ -28,6 +32,13 @@
       "!src/router/index.js",
       "!**/node_modules/**"
     ],
-    "coverageReporters": ["text", "lcov", "json-summary"]
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "json-summary"
+    ],
+    "testEnvironmentOptions": {
+      "customExportConditions": ["node", "node-addons"]
+    }
   }
 }
