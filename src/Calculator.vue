@@ -1,4 +1,3 @@
-
 <template>
     <div>
         <table cellpadding="0" cellspacing="0" border="2px" align="center" v-if="!showMessage">
@@ -85,96 +84,94 @@
                 </td>
             </tr>
         </table>
-         <!--Transition animation for showing and hiding the fireworks container-->
         <transition name="fade">
-            <!-- Display the fireworks container when showMessage is true -->
             <div v-if="showMessage" class="fireworks-container">
-                <!-- Loop through each firework and display it with a unique sparkle style -->
                 <div class="firework" v-for="(firework, index) in fireworks" :key="index">
-                    <!-- Display a sparkle with a background color based on the colors array -->
                     <div class="sparkle" :class="`sparkle-${index}`" :style="{ backgroundColor: colors[index] }"></div>
                 </div>
-                <!-- Display the exit message -->
                 <p class="exit-message">{{ message }}</p>
             </div>
         </transition>
     </div>
 </template>
 
-<script setup>
-    import { ref } from 'vue';
-    let flag = ref(true);
-
-    const showMessage = ref(false);
-    const message = 'Thank you for using this calculator application!';
-    const fireworks = ref([]);
-    const colors = ref([]);
-
-    // Appends a character to the text box.
-    const func = (str) => {
-        const t = document.getElementById("t");
-        if (flag.value) { // If the flag is true, clear the text box first.
-            t.value = '';
-            flag.value = false; // Reset the flag.
+<script>
+export default {
+    name: 'Calculator',
+    data() {
+        return {
+            flag: true,
+            showMessage: false,
+            message: 'Thank you for using this calculator application!',
+            fireworks: [],
+            colors: []
         }
-        t.value = t.value + str; // Append the character to the text box.
-    };
+    },
+    methods: {
+        func(str) {
+            const t = document.getElementById("t")
+            if (this.flag) {
+                t.value = ''
+                this.flag = false
+            }
+            t.value = t.value + str
+        },
 
-    // Removes the last character from the text box.
-    const backspace = () => {
-        const t = document.getElementById("t");
-        t.value = t.value.substr(0, t.value.length - 1); // Remove the last character.
-    };
+        backspace() {
+            const t = document.getElementById("t")
+            t.value = t.value.substr(0, t.value.length - 1)
+        },
 
-    // Clears the text box and sets the flag.
-    const AC = () => {
-        const t = document.getElementById("t");
-        t.value = "0"; // Set the text box value to "0".
-        flag.value = true; // Set the flag to true.
-    };
+        AC() {
+            const t = document.getElementById("t")
+            t.value = "0"
+            this.flag = true
+        },
 
-    // Evaluates the expression in the text box and displays the result.
-    const equals = () => {
-        const t = document.getElementById("t");
-        t.value = eval(t.value); // Evaluate the expression using eval.
-    };
+        equals() {
+            const t = document.getElementById("t")
+            try {
+                t.value = eval(t.value)
+            } catch (e) {
+                t.value = "Error"
+            }
+        },
 
-    // Exits the application and shows a fireworks effect.
-    const exit = () => {
-        showMessage.value = true; // Show the message.
-        fireworks.value = Array.from({ length: 50 }, (_, i) => i); // Initialize the fireworks array.
-        colors.value = Array.from({ length: 50 }, () => getRandomColor()); // Generate an array of random colors.
-        setTimeout(() => { // Delay the page closing.
-            closePage();
-        }, 4000); // Close after 4 seconds.
-    };
+        exit() {
+            this.showMessage = true
+            this.fireworks = Array.from({ length: 50 }, (_, i) => i)
+            this.colors = Array.from({ length: 50 }, () => this.getRandomColor())
+            setTimeout(() => {
+                this.closePage()
+            }, 4000)
+        },
 
-    // Generates a random color.
-    function getRandomColor() {
-        const letters = '0123456789ABCDEF';
-        let color = '#';
-        for (let i = 0; i < 6; i++) {
-            color += letters[Math.floor(Math.random() * 16)]; // Generate a random color.
-        }
-        return color;
-    }
+        getRandomColor() {
+            const letters = '0123456789ABCDEF'
+            let color = '#'
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)]
+            }
+            return color
+        },
 
-    // Closes the current window.
-    const closePage = () => {
-        if (window.opener && window.opener !== window) { // If there is an opener and it's not the same as the current window.
-            window.close(); // Close the current window.
-        } else {
-            if (navigator.userAgent.indexOf('Firefox') != -1 || navigator.userAgent.indexOf('Chrome') != -1) { // If it's Firefox or Chrome.
-                window.close(); // Close the window directly.
+        closePage() {
+            if (window.opener && window.opener !== window) {
+                window.close()
             } else {
-                window.opener = null; // Clear the opener property.
-                window.open('', '_self'); // Open a blank page.
-                window.close(); // Close the current window.
+                if (navigator.userAgent.indexOf('Firefox') != -1 || navigator.userAgent.indexOf('Chrome') != -1) {
+                    window.close()
+                } else {
+                    window.opener = null
+                    window.open('', '_self')
+                    window.close()
+                }
             }
         }
     }
+}
 </script>
 
 <style scoped>
-    @import "./Calculator.css";
+@import "./Calculator.css";
 </style>

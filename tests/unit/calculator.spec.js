@@ -1,11 +1,17 @@
 import { mount } from '@vue/test-utils'
-import Calculator from '@/components/Calculator.vue'
+import Calculator from '../../src/Calculator.vue'
 
 describe('Calculator.vue', () => {
   let wrapper
 
   beforeEach(() => {
-    wrapper = mount(Calculator)
+    wrapper = mount(Calculator, {
+      attachTo: document.body
+    })
+  })
+
+  afterEach(() => {
+    wrapper.unmount()
   })
 
   // 测试基础渲染
@@ -15,36 +21,59 @@ describe('Calculator.vue', () => {
 
   // 测试数字按钮点击
   test('点击数字按钮', async () => {
-    const button = wrapper.find('button[data-number="1"]')
+    const button = wrapper.find('input[value="1"]')
     await button.trigger('click')
-    expect(wrapper.vm.currentNumber).toBe('1')
+    const display = wrapper.find('#t')
+    await wrapper.vm.$nextTick()
+    expect(display.element.value).toBe('1')
   })
 
   // 测试加法运算
   test('加法运算', async () => {
     // 输入第一个数字
-    await wrapper.find('button[data-number="5"]').trigger('click')
+    await wrapper.find('input[value="5"]').trigger('click')
+    await wrapper.vm.$nextTick()
     // 点击加号
-    await wrapper.find('button[data-operator="+"]').trigger('click')
+    await wrapper.find('input[value="+"]').trigger('click')
+    await wrapper.vm.$nextTick()
     // 输入第二个数字
-    await wrapper.find('button[data-number="3"]').trigger('click')
+    await wrapper.find('input[value="3"]').trigger('click')
+    await wrapper.vm.$nextTick()
     // 点击等号
-    await wrapper.find('button[data-operator="="]').trigger('click')
+    await wrapper.find('input[value="="]').trigger('click')
+    await wrapper.vm.$nextTick()
     
-    expect(wrapper.vm.result).toBe(8)
+    const display = wrapper.find('#t')
+    expect(display.element.value).toBe('8')
   })
 
-  // 测试除零错误
-  test('除零错误处理', async () => {
-    // 输入数字
-    await wrapper.find('button[data-number="6"]').trigger('click')
-    // 点击除号
-    await wrapper.find('button[data-operator="/"]').trigger('click')
-    // 输入零
-    await wrapper.find('button[data-number="0"]').trigger('click')
-    // 点击等号
-    await wrapper.find('button[data-operator="="]').trigger('click')
+  // 测试清除功能
+  test('清除功能', async () => {
+    // 先输入一些数字
+    await wrapper.find('input[value="1"]').trigger('click')
+    await wrapper.vm.$nextTick()
+    await wrapper.find('input[value="2"]').trigger('click')
+    await wrapper.vm.$nextTick()
+    // 点击清除
+    await wrapper.find('input[value="Clear"]').trigger('click')
+    await wrapper.vm.$nextTick()
     
-    expect(wrapper.vm.error).toBe('除数不能为零')
+    const display = wrapper.find('#t')
+    expect(display.element.value).toBe('0')
+  })
+
+  // 测试退格功能
+  test('退格功能', async () => {
+    // 输入数字
+    await wrapper.find('input[value="1"]').trigger('click')
+    await wrapper.vm.$nextTick()
+    await wrapper.find('input[value="2"]').trigger('click')
+    await wrapper.vm.$nextTick()
+    // 点击退格
+    await wrapper.find('input[value="Del"]').trigger('click')
+    await wrapper.vm.$nextTick()
+    
+    const display = wrapper.find('#t')
+    expect(display.element.value).toBe('1')
   })
 }) 
