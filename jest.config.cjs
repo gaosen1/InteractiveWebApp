@@ -16,5 +16,12 @@ module.exports = {
   testEnvironmentOptions: {
     customExportConditions: ['node', 'node-addons']
   },
-  setupFiles: ['<rootDir>/jest.setup.js']
+  setupFiles: ['<rootDir>/jest.setup.js'],
+  globals: {
+    'vue-jest': {
+      compilerOptions: {
+        isCustomElement: (tag) => tag === 'transition'
+      }
+    }
+  }
 } 

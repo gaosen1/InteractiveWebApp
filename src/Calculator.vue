@@ -83,6 +83,11 @@
                     <input type="button" value="=" class="equal" @click="equals()" />
                 </td>
             </tr>
+            <tr>
+                <td>
+                    <input type="button" class="signs" value="/" @click="func('/')" />
+                </td>
+            </tr>
         </table>
         <transition name="fade">
             <div v-if="showMessage" class="fireworks-container">
@@ -96,7 +101,9 @@
 </template>
 
 <script>
-export default {
+import { defineComponent } from 'vue'
+
+export default defineComponent({
     name: 'Calculator',
     data() {
         return {
@@ -109,12 +116,29 @@ export default {
     },
     methods: {
         func(str) {
-            const t = document.getElementById("t")
-            if (this.flag) {
-                t.value = ''
-                this.flag = false
+            try {
+                const t = document.getElementById("t")
+                if (!t) {
+                    console.error('Input element not found!')
+                    return
+                }
+
+                if (this.flag) {
+                    t.value = ''
+                    this.flag = false
+                }
+
+                const oldValue = t.value
+                console.log('Old value:', oldValue)
+
+                const newValue = oldValue + str
+                console.log('New value:', newValue)
+
+                t.value = newValue
+                console.log('Input value updated:', t.value)
+            } catch (e) {
+                console.error('Error in func method:', e)
             }
-            t.value = t.value + str
         },
 
         backspace() {
@@ -131,8 +155,16 @@ export default {
         equals() {
             const t = document.getElementById("t")
             try {
-                t.value = eval(t.value)
+                console.log('Expression to evaluate:', t.value)
+                const result = eval(t.value)
+                console.log('Evaluation result:', result)
+                if (typeof result === 'number' && !isNaN(result)) {
+                    t.value = result
+                } else {
+                    t.value = "Error"
+                }
             } catch (e) {
+                console.error('Evaluation error:', e)
                 t.value = "Error"
             }
         },
@@ -169,7 +201,7 @@ export default {
             }
         }
     }
-}
+})
 </script>
 
 <style scoped>

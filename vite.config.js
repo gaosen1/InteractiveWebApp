@@ -12,5 +12,13 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    coverage: {
+      provider: 'istanbul',
+      reporter: ['text', 'json', 'html']
+    }
   }
 })

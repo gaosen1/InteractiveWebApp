@@ -8,4 +8,8 @@ global.TextDecoder = TextDecoder;
 config.global.stubs = {
   transition: false,
   'transition-group': false
-}; 
+};
+
+config.global.mocks = {
+  // 添加任何需要模拟的全局属性
+} 

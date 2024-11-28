@@ -23,8 +23,10 @@
 2.4输入两个数字做乘法运算，如图所示
 
 
-## 任务 3
-应用程序描述：
+## 测试计划
+
+### 应用程序描述：
+
 该网络计算器执行基本的数学运算，如加、减、乘、除。它接受数字作为输入并立即显示结果。用户界面在不同设备和平台上简单易用。
 测试活动：
 该应用程序经历了几个测试活动：
@@ -59,45 +61,232 @@
 本测试计划旨在确保计算器应用程序的质量、可靠性和用户体验。测试将分为以下几个主要阶段：
 
 #### 4.1.1 单元测试
-- 测试工具：Jest
+- 测试工具：vitest
 - 测试范围：
   - 所有数学运算函数（加、减、乘、除、取模）
   - 输入验证函数
   - 清除功能
 - 预期完成时间：3天
 
-Jest测试工具配置：
-1. 安装依赖：
-```bash
-npm install --save-dev jest @vue/test-utils @vue/cli-plugin-unit-jest @babel/core @babel/preset-env babel-jest
-```
+1. 编写测试代码：
+   ```js
+   import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+   import { mount } from '@vue/test-utils'
+   import Calculator from '../../src/Calculator.vue'
+   
+   describe('Calculator.vue', () => {
+     let wrapper
+     let display
+   
+     beforeEach(() => {
+       document.body.innerHTML = `<div id="app"><input type="text" id="t" value="0" /></div>`
+       display = document.getElementById('t')
+       
+       wrapper = mount(Calculator, {
+         attachTo: document.getElementById('app')
+       })
+     })
+   
+     afterEach(() => {
+       wrapper.unmount()
+     })
+   
+     it('should render correctly', () => {
+       expect(wrapper.exists()).toBe(true)
+       expect(wrapper.vm.showMessage).toBe(false)
+     })
+   
+     it('should handle number input', async () => {
+       await wrapper.find('input[value="1"]').trigger('click')
+       expect(display.value).toBe('1')
+     })
+   
+     it('should perform addition', async () => {
+       await wrapper.find('input[value="5"]').trigger('click')
+       await wrapper.find('input[value="+"]').trigger('click')
+       await wrapper.find('input[value="3"]').trigger('click')
+       await wrapper.find('input[value="="]').trigger('click')
+       expect(display.value).toBe('8')
+     })
+   
+     it('should clear display', async () => {
+       await wrapper.find('input[value="1"]').trigger('click')
+       await wrapper.find('input[value="2"]').trigger('click')
+       await wrapper.find('input[value="Clear"]').trigger('click')
+       expect(display.value).toBe('0')
+     })
+   
+     it('should delete last character', async () => {
+       await wrapper.find('input[value="1"]').trigger('click')
+       await wrapper.find('input[value="2"]').trigger('click')
+       await wrapper.find('input[value="Del"]').trigger('click')
+       expect(display.value).toBe('1')
+     })
+   }) 
+   ```
 
-2. 配置Jest（jest.config.js）：
-- 支持.vue文件测试
-- 支持ES6语法
-- 配置测试文件匹配规则
-- 设置jsdom测试环境
+2. 运行测试命令：
 
-3. 运行测试命令：
-```bash
-# 运行所有测试
-npm run test:unit
+    ```bash
+    # 启动测试在监视模式（watch mode）
+    npm run test
+    
+    # 可视化展示测试结果
+    npm run test:ui
+    
+    # 运行所有测试并生成测试报告
+    npm run coverage
+    
+    ```
+    
+3. 预期测试结果：
 
-# 监视模式运行测试
-npm run test:watch
-```
+   ```bash
+    ✓ tests/unit/calculator.spec.js (5)
+      ✓ Calculator.vue (5)
+        ✓ should render correctly
+        ✓ should handle number input
+        ✓ should perform addition
+        ✓ should clear display
+        ✓ should delete last character
+   
+    Test Files  1 passed (1)
+         Tests  5 passed (5)
+      Start at  22:18:51
+      Duration  17.52s (transform 342ms, setup 0ms, collect 674ms, tests 253ms, environment 14.63s, prepare 1.12s)
+   
+    PASS  Waiting for file changes...
+          press h to show help, press q to quit
+   ```
+
+   
 
 #### 4.1.2 集成测试
+
 - 测试工具：Vue Test Utils
 - 测试范围：
   - 组件间通信
   - 数据流
   - 状态管理
-- 预期完成时间：4天
+- 预期完成时间：2天
+
+实际上在上一步测试中，已经包含了部分Vue Test Utils的内容，该工具专门用于测试Vue组件。在这一步测试中，我将编写利用Vue Test Utils进行测试的、更详细的测试代码，模拟计算器的按键点击，更贴近实际情况：
+```javascript
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { mount } from '@vue/test-utils'
+import Calculator from '../../src/Calculator.vue'
+
+describe('Calculator.vue', () => {
+  let wrapper
+  let display
+
+  beforeEach(() => {
+    document.body.innerHTML = `<div id="app"><input type="text" id="t" value="0" /></div>`
+    display = document.getElementById('t')
+    
+    wrapper = mount(Calculator, {
+      attachTo: document.getElementById('app')
+    })
+  })
+
+  afterEach(() => {
+    wrapper.unmount()
+  })
+
+  // 测试组件渲染
+  it('should render correctly', () => {
+    expect(wrapper.exists()).toBe(true)
+    expect(wrapper.vm.showMessage).toBe(false)
+    // 测试是否渲染了所有按钮
+    expect(wrapper.findAll('input[type="button"]')).toHaveLength(19)
+  })
+
+  // 测试数据属性
+  it('should have correct initial data', () => {
+    expect(wrapper.vm.flag).toBe(true)
+    expect(wrapper.vm.showMessage).toBe(false)
+    expect(wrapper.vm.message).toBe('Thank you for using this calculator application!')
+    expect(wrapper.vm.fireworks).toEqual([])
+    expect(wrapper.vm.colors).toEqual([])
+  })
+
+  // 测试方法调用
+  it('should call correct methods on button click', async () => {
+    const funcSpy = vi.spyOn(wrapper.vm, 'func')
+    const equalsSpy = vi.spyOn(wrapper.vm, 'equals')
+    
+    await wrapper.find('input[value="1"]').trigger('click')
+    expect(funcSpy).toHaveBeenCalledWith('1')
+    
+    await wrapper.find('input[value="="]').trigger('click')
+    expect(equalsSpy).toHaveBeenCalled()
+  })
+
+  // 测试复杂计算
+  it('should handle complex calculations', async () => {
+    // 测试带括号的计算
+    await wrapper.find('input[value="("]').trigger('click')
+    await wrapper.find('input[value="2"]').trigger('click')
+    await wrapper.find('input[value="+"]').trigger('click')
+    await wrapper.find('input[value="3"]').trigger('click')
+    await wrapper.find('input[value=")"]').trigger('click')
+    await wrapper.find('input[value="*"]').trigger('click')
+    await wrapper.find('input[value="4"]').trigger('click')
+    await wrapper.find('input[value="="]').trigger('click')
+    
+    expect(display.value).toBe('20')
+  })
+
+  // 测试错误处理
+  it('should handle division by zero', async () => {
+    await wrapper.find('input[value="5"]').trigger('click')
+    await wrapper.find('input[value="/"]').trigger('click')
+    await wrapper.find('input[value="0"]').trigger('click')
+    await wrapper.find('input[value="="]').trigger('click')
+    
+    expect(display.value).toBe('Error')
+  })
+
+  // 测试退出功能
+  it('should show exit message', async () => {
+    await wrapper.find('.exit-button').trigger('click')
+    expect(wrapper.vm.showMessage).toBe(true)
+    expect(wrapper.vm.fireworks.length).toBe(50)
+    expect(wrapper.vm.colors.length).toBe(50)
+  })
+
+  // 测试组件事件
+  it('should emit events correctly', async () => {
+    await wrapper.find('input[value="1"]').trigger('click')
+    expect(wrapper.emitted()).toHaveProperty('click')
+  })
+
+  // 测试DOM更新
+  it('should update DOM correctly', async () => {
+    await wrapper.find('input[value="1"]').trigger('click')
+    await wrapper.find('input[value="2"]').trigger('click')
+    
+    // 等待DOM更新
+    await wrapper.vm.$nextTick()
+    expect(display.value).toBe('12')
+  })
+
+  // 测试样式
+  it('should have correct styles', () => {
+    const numberButton = wrapper.find('.number')
+    expect(numberButton.exists()).toBe(true)
+    
+    const exitButton = wrapper.find('.exit-button')
+    expect(exitButton.exists()).toBe(true)
+  })
+}) 
+```
+
+
 
 #### 4.1.3 UI/UX测试
+
 - 测试工具：
-  - Cypress（E2E测试）
   - Browser Stack（跨浏览器测试）
 - 测试范围：
   - 响应式布局
@@ -105,6 +294,45 @@ npm run test:watch
   - 键盘输入支持
   - 错误提示显示
 - 预期完成时间：5天
+
+
+
+使用 BrowserStack 进行跨浏览器测试。按照以下步骤进行设置：
+
+1. 注册 BrowserStack 账号并获取认证信息
+2. 创建 .env 文件并填入你的认证信息：   
+
+    ```
+    BROWSERSTACK_USERNAME=我的用户名
+    BROWSERSTACK_ACCESS_KEY=我的访问密钥   
+    ```
+
+3. 安装依赖：
+
+    ```bash
+    npm install   
+    ```
+
+4. 运行测试：
+
+    ```bash
+    # 启动 BrowserStack Local（用于测试本地环境）
+    npm run browserstack-local
+
+    # 在新的终端窗口运行测试
+    npm run test:browserstack   
+    ```
+
+测试将在以下浏览器环境中运行：
+- Chrome (Windows 10)
+- Firefox (Windows 10)
+- Safari (macOS Big Sur)
+- Edge (Windows 10)
+
+测试结果可以在 BrowserStack 控制台查看。
+
+
+
 
 ### 4.2 测试用例示例
 
@@ -196,4 +424,29 @@ npm run build
 - 页面加载时间 < 2s
 - 运算响应时间 < 100ms
 - 内存占用 < 50MB
+
+## 跨浏览器测试
+
+本项目使用 BrowserStack 进行跨浏览器测试。按照以下步骤进行设置：
+
+1. 注册 BrowserStack 账号并获取认证信息
+2. 创建 .env 文件并填入你的认证信息：   ```
+   BROWSERSTACK_USERNAME=你的用户名
+   BROWSERSTACK_ACCESS_KEY=你的访问密钥   ```
+3. 安装依赖：   ```bash
+   npm install   ```
+4. 运行测试：   ```bash
+   # 启动 BrowserStack Local（用于测试本地环境）
+   npm run browserstack-local
+   
+   # 在新的终端窗口运行测试
+   npm run test:browserstack   ```
+
+测试将在以下浏览器环境中运行：
+- Chrome (Windows 10)
+- Firefox (Windows 10)
+- Safari (macOS Big Sur)
+- Edge (Windows 10)
+
+测试结果可以在 BrowserStack 控制台查看。
 ```
